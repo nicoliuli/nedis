@@ -10,6 +10,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class Client {
     private int port;
     private Channel channel;
     private List<Server> serverList;
+    private static Logger logger = LoggerFactory.getLogger(Client.class);
 
     public Client(int port, List<Server> serverList) {
         this.port = port;
@@ -38,7 +41,7 @@ public class Client {
                 @Override
                 public void operationComplete(Future<? super Void> future) throws Exception {
                     if (future.isSuccess()) {
-                        System.out.println("client start");
+                       logger.info("client start");
                     }
                 }
             });
@@ -46,7 +49,7 @@ public class Client {
             channel.closeFuture().sync().addListener(new GenericFutureListener<Future<? super Void>>() {
                 @Override
                 public void operationComplete(Future<? super Void> future) throws Exception {
-                    System.out.println("client close");
+                    logger.info("client close");
                 }
             });
         } catch (Exception e) {

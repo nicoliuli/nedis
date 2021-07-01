@@ -5,10 +5,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RedisServerHandler extends ChannelDuplexHandler {
 
-
+    private static Logger logger = LoggerFactory.getLogger(RedisServerHandler.class);
     /**
      * 将redis-cli的数据发给redis
      */
@@ -31,18 +33,18 @@ public class RedisServerHandler extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        System.err.print("exceptionCaught: ");
+        logger.error("exceptionCaught: ",cause);
         cause.printStackTrace(System.err);
         ctx.close();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("a server active:" + ctx.channel().id());
+        logger.info("a server active: {}",ctx.channel().id());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("a server inactive:" + ctx.channel().id());
+        logger.info("a server inactive: {}" ,ctx.channel().id());
     }
 }

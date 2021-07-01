@@ -1,5 +1,6 @@
 package com.nedis.server;
 
+import com.nedis.Nedis;
 import com.nedis.config.ConfigUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -9,6 +10,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -18,6 +21,7 @@ public class Server {
     private int port;
     private Channel channel;
     private ArrayList<Channel> serverChannel = new ArrayList<>(ConfigUtil.config.getServerChannel());
+    private static Logger logger = LoggerFactory.getLogger(Nedis.class);
 
 
     public Server(String host, int port) {
@@ -36,7 +40,7 @@ public class Server {
             ChannelFuture f = bootstrap.connect(host, port).sync().addListener(new GenericFutureListener<Future<? super Void>>() {
                 @Override
                 public void operationComplete(Future<? super Void> future) throws Exception {
-                    System.out.println("server start");
+                    logger.info("server start");
                 }
             });
             channel = f.channel();
@@ -44,7 +48,7 @@ public class Server {
             channel.closeFuture().addListener(new GenericFutureListener<Future<? super Void>>() {
                 @Override
                 public void operationComplete(Future<? super Void> future) throws Exception {
-                    System.out.println("server channel close");
+                    logger.info("server channel close");
                     // server与redis断开链接时，不能从serverChannel移除。会导路由key的错乱
                 }
             });
@@ -62,7 +66,7 @@ public class Server {
             return serverChannel.get(0);
         }
         int idx = new Random().nextInt(ConfigUtil.config.getServerChannel());
-        System.out.println("server channel idx = " + idx);
+        logger.info("server channel idx = {}" ,idx);
         return serverChannel.get(idx);
     }
 
@@ -73,7 +77,7 @@ public class Server {
                     channel.close().addListener(new GenericFutureListener<Future<? super Void>>() {
                         @Override
                         public void operationComplete(Future<? super Void> future) throws Exception {
-                            System.out.println("channel shutdown");
+                            logger.info("channel shutdown");
                         }
                     });
                 }

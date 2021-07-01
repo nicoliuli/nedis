@@ -10,12 +10,15 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.util.CharsetUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Random;
 
 public class RedisClientHandler extends ChannelDuplexHandler {
 
+    private static Logger logger = LoggerFactory.getLogger(RedisClientHandler.class);
 
     private List<Server> serverList;
 
@@ -43,7 +46,7 @@ public class RedisClientHandler extends ChannelDuplexHandler {
 
         // 解析命令，算出key等信息
         CmdAndKey cmdAndKey = resolveStringCmd(stringCmd);
-        System.out.println("cmdAndKey = " + cmdAndKey);
+        logger.info("cmdAndKey = {}", cmdAndKey);
 
         if (cmdAndKey == null || CmdSet.isOtherCmd(cmdAndKey.getCmd())) {
             // 随机发送
@@ -61,7 +64,7 @@ public class RedisClientHandler extends ChannelDuplexHandler {
             server = serverList.get(serverIdx);
         }
 
-        System.out.println("serverIdx = " + serverIdx);
+        logger.info("serverIdx = {}", serverIdx);
 
         // 发给server,把client的channel通过attr属性带过去
         Channel channel = server.getRandomChannel();
@@ -76,7 +79,7 @@ public class RedisClientHandler extends ChannelDuplexHandler {
      */
     private CmdAndKey resolveStringCmd(String stringCmd) {
         stringCmd = stringCmd.toLowerCase();
-        System.out.println("stringCmd = " + stringCmd.replace(Constants.ENTRY, ""));
+        logger.info("stringCmd = {}", stringCmd.replace(Constants.ENTRY, ""));
         String[] cmdArr = stringCmd.split(Constants.ENTRY);
         String key = "";
         // info ==> *1$4info
@@ -113,11 +116,11 @@ public class RedisClientHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("connection client active:" + ctx.channel().id());
+        logger.info("connection client active: {}", ctx.channel().id());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("connention client inactive:" + ctx.channel().id());
+        logger.info("connention client inactive: {}",ctx.channel().id());
     }
 }
