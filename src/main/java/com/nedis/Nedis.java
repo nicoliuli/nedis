@@ -9,7 +9,7 @@ import com.nedis.server.Server;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bootstrap {
+public class Nedis {
     public static void main(String[] args) throws Exception {
         // 启动server,连接redis
         List<RedisServerConfig> redisServerConfigList = ConfigUtil.config.getRedisServerConfigList();
@@ -21,21 +21,11 @@ public class Bootstrap {
             for (int i = 0; i < serverChannel; i++) {
                 aServer.start();
             }
-
         }
 
         // 启动client，连接netty-server，和redis-cli
         Client client = new Client(ConfigUtil.config.getClientPort(), serverList);
         client.start();
-
-        System.out.println("bb");
-        // 添加hook
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("aaaaa");
-            for (Server server : serverList) {
-                server.closeChannel();
-            }
-        }));
 
     }
 }

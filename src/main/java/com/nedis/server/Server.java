@@ -26,7 +26,6 @@ public class Server {
     }
 
     public void start() throws Exception {
-
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap bootstrap = new Bootstrap();
@@ -42,7 +41,13 @@ public class Server {
             });
             channel = f.channel();
             serverChannel.add(channel);
-
+            channel.closeFuture().addListener(new GenericFutureListener<Future<? super Void>>() {
+                @Override
+                public void operationComplete(Future<? super Void> future) throws Exception {
+                    System.out.println("server channel close");
+                    // server与redis断开链接时，不能从serverChannel移除。会导路由key的错乱
+                }
+            });
         } finally {
 
         }

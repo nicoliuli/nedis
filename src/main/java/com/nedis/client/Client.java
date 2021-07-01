@@ -25,7 +25,7 @@ public class Client {
 
     public void start() {
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new NioEventLoopGroup(2);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
@@ -43,7 +43,7 @@ public class Client {
                 }
             });
             channel = f.channel();
-            f.channel().closeFuture().sync().addListener(new GenericFutureListener<Future<? super Void>>() {
+            channel.closeFuture().sync().addListener(new GenericFutureListener<Future<? super Void>>() {
                 @Override
                 public void operationComplete(Future<? super Void> future) throws Exception {
                     System.out.println("client close");
@@ -52,7 +52,6 @@ public class Client {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            channel.close();
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
