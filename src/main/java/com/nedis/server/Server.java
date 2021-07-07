@@ -5,6 +5,7 @@ import com.nedis.config.ConfigUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -35,6 +36,8 @@ public class Server {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
                     .channel(NioSocketChannel.class)
+                    .option(ChannelOption.SO_RCVBUF,8*10240)
+                    .option(ChannelOption.SO_SNDBUF,8*10240)
                     .handler(new RedisServerInitializer());
 
             ChannelFuture f = bootstrap.connect(host, port).sync().addListener(new GenericFutureListener<Future<? super Void>>() {
@@ -66,7 +69,7 @@ public class Server {
             return serverChannel.get(0);
         }
         int idx = new Random().nextInt(ConfigUtil.config.getServerChannel());
-        logger.info("server channel idx = {}" ,idx);
+    //    logger.info("server channel idx = {}" ,idx);
         return serverChannel.get(idx);
     }
 

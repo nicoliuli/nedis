@@ -28,13 +28,15 @@ public class Client {
 
     public void start() {
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup(2);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new NioEventLoopGroup(5);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(6);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG, 1024)
+                 //   .childOption(ChannelOption.SO_BACKLOG, 8 * 1024)
+                    .childOption(ChannelOption.SO_SNDBUF,8 * 10240)
+                    .childOption(ChannelOption.SO_RCVBUF,8 * 10240)
                     .childHandler(new RedisClientInitializer(serverList));
 
             ChannelFuture f = b.bind(port).sync().addListener(new GenericFutureListener<Future<? super Void>>() {

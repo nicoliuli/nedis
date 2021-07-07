@@ -46,7 +46,7 @@ public class RedisClientHandler extends ChannelDuplexHandler {
 
         // 解析命令，算出key等信息
         CmdAndKey cmdAndKey = resolveStringCmd(stringCmd);
-        logger.info("cmdAndKey = {}", cmdAndKey);
+    //    logger.info("cmdAndKey = {}", cmdAndKey);
 
         if (cmdAndKey == null || CmdSet.isOtherCmd(cmdAndKey.getCmd())) {
             // 随机发送
@@ -64,7 +64,7 @@ public class RedisClientHandler extends ChannelDuplexHandler {
             server = serverList.get(serverIdx);
         }
 
-        logger.info("serverIdx = {}", serverIdx);
+    //    logger.info("serverIdx = {}", serverIdx);
 
         // 发给server,把client的channel通过attr属性带过去
         Channel channel = server.getRandomChannel();
@@ -79,7 +79,7 @@ public class RedisClientHandler extends ChannelDuplexHandler {
      */
     private CmdAndKey resolveStringCmd(String stringCmd) {
         stringCmd = stringCmd.toLowerCase();
-        logger.info("stringCmd = {}", stringCmd.replace(Constants.ENTRY, ""));
+     //   logger.info("stringCmd = {}", stringCmd.replace(Constants.ENTRY, ""));
         String[] cmdArr = stringCmd.split(Constants.ENTRY);
         String key = "";
         // info ==> *1$4info
