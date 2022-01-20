@@ -35,8 +35,6 @@ public class Server {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
                     .channel(NioSocketChannel.class)
-                    .option(ChannelOption.SO_RCVBUF,8*10240)
-                    .option(ChannelOption.SO_SNDBUF,8*10240)
                     .handler(new RedisServerInitializer());
 
             ChannelFuture f = bootstrap.connect(host, port).sync().addListener(new GenericFutureListener<Future<? super Void>>() {
