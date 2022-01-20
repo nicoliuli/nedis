@@ -1,6 +1,3 @@
-package com.nedis;
-
-
 import com.nedis.client.Client;
 import com.nedis.config.ConfigUtil;
 import com.nedis.model.RedisServerConfig;

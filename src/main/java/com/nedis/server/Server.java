@@ -1,6 +1,5 @@
 package com.nedis.server;
 
-import com.nedis.Nedis;
 import com.nedis.config.ConfigUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -22,7 +21,7 @@ public class Server {
     private int port;
     private Channel channel;
     private ArrayList<Channel> serverChannel = new ArrayList<>(ConfigUtil.config.getServerChannel());
-    private static Logger logger = LoggerFactory.getLogger(Nedis.class);
+    private static Logger logger = LoggerFactory.getLogger(Server.class);
 
 
     public Server(String host, int port) {
