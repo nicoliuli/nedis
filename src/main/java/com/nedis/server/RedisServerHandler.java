@@ -16,6 +16,7 @@ public class RedisServerHandler extends ChannelDuplexHandler {
      */
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+        //logger.info("server write channelId = {},{}",ctx.channel().id(),msg.toString());
         ctx.writeAndFlush(msg);
     }
 
@@ -27,6 +28,7 @@ public class RedisServerHandler extends ChannelDuplexHandler {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         // 获取client的channel，把数据写回给redis-cli
         Channel clientChannel = ctx.pipeline().channel().attr(Constants.attributeKey).get();
+        // logger.info("server read channelId = {},{}",ctx.channel().id(),msg.toString());
         clientChannel.writeAndFlush(msg);
     }
 

@@ -13,18 +13,19 @@ public class Nedis {
     public static void main(String[] args) throws Exception {
         // 启动server,连接redis
         List<RedisServerConfig> redisServerConfigList = ConfigUtil.config.getRedisServerConfigList();
-        List<Server> serverList = new ArrayList<>();
-        for (RedisServerConfig redisServerConfig : redisServerConfigList) {
-            Server aServer = new Server(redisServerConfig.getIp(), redisServerConfig.getPort());
-            serverList.add(aServer);
-            Integer serverChannel = ConfigUtil.config.getServerChannel();
-            for (int i = 0; i < serverChannel; i++) {
+        Server [] servers = new Server[redisServerConfigList.size()];
+        for (int i = 0; i < redisServerConfigList.size(); i++) {
+            Server aServer = new Server(redisServerConfigList.get(i).getIp(), redisServerConfigList.get(i).getPort());
+            servers[i] = aServer;
+            int serverChannel = ConfigUtil.config.getServerChannel();
+            for (int j = 0; j < serverChannel; j++) {
                 aServer.start();
             }
         }
 
+
         // 启动client，连接netty-server，和redis-cli
-        Client client = new Client(ConfigUtil.config.getClientPort(), serverList);
+        Client client = new Client(ConfigUtil.config.getClientPort(), servers);
         client.start();
 
     }

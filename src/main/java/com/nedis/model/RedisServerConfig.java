@@ -9,9 +9,9 @@ public class RedisServerConfig {
     /**
      * redis port
      */
-    private Integer port;
+    private int port;
 
-    public RedisServerConfig(String ip, Integer port) {
+    public RedisServerConfig(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }
@@ -20,7 +20,7 @@ public class RedisServerConfig {
         return ip;
     }
 
-    public Integer getPort() {
+    public int getPort() {
         return port;
     }
 }

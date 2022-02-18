@@ -9,7 +9,7 @@ public class Config {
     /**
      * client监听的端口
      */
-    private Integer clientPort;
+    private int clientPort;
 
     /**
      * redis server的ip和端口
@@ -19,18 +19,18 @@ public class Config {
     /**
      * 每个redis的连接数
      */
-    private Integer serverChannel;
+    private int serverChannel;
 
     public Config() {
     }
 
 
 
-    public Integer getClientPort() {
+    public int getClientPort() {
         return clientPort;
     }
 
-    public void setClientPort(Integer clientPort) {
+    public void setClientPort(int clientPort) {
         this.clientPort = clientPort;
     }
 
@@ -42,11 +42,11 @@ public class Config {
         this.redisServerConfigList = redisServerConfigList;
     }
 
-    public Integer getServerChannel() {
+    public int getServerChannel() {
         return serverChannel;
     }
 
-    public void setServerChannel(Integer serverChannel) {
+    public void setServerChannel(int serverChannel) {
         this.serverChannel = serverChannel;
     }
 }

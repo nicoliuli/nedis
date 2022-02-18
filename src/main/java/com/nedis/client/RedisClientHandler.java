@@ -20,11 +20,13 @@ public class RedisClientHandler extends ChannelDuplexHandler {
 
     private static Logger logger = LoggerFactory.getLogger(RedisClientHandler.class);
 
-    private List<Server> serverList;
+    private Server [] servers;
+    private int serverCount;
 
 
-    public RedisClientHandler(List<Server> serverList) {
-        this.serverList = serverList;
+    public RedisClientHandler(Server [] servers) {
+        this.servers = servers;
+        serverCount = this.servers.length;
     }
 
     /**
@@ -40,36 +42,37 @@ public class RedisClientHandler extends ChannelDuplexHandler {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ByteBuf byteBuf = (ByteBuf) msg;
         String stringCmd = byteBuf.toString(CharsetUtil.UTF_8);
-        int serverCount = serverList.size();
         Server server = null;
         int serverIdx = 0;
 
         // 解析命令，算出key等信息
         CmdAndKey cmdAndKey = resolveStringCmd(stringCmd);
-    //    logger.info("cmdAndKey = {}", cmdAndKey);
+
 
         if (cmdAndKey == null || CmdSet.isOtherCmd(cmdAndKey.getCmd())) {
             // 随机发送
             serverIdx = new Random().nextInt(serverCount);
-            server = serverList.get(serverIdx);
+            server = servers[serverIdx];
         } else if (CmdSet.isNormorCmd(cmdAndKey.getCmd())) {
             // 根据key的hash值发送
             String key = cmdAndKey.getKey();
             serverIdx = key.hashCode() % serverCount;
-            server = serverList.get(serverIdx);
+            server = servers[serverIdx];
         }
         // 兜底
         if (server == null) {
             serverIdx = new Random().nextInt(serverCount);
-            server = serverList.get(serverIdx);
+            server = servers[serverIdx];
         }
+        //logger.info("serverIdx = {}",serverIdx);
 
-    //    logger.info("serverIdx = {}", serverIdx);
+      //  logger.info("cmdAndKey = {},channelId = {}", cmdAndKey,ctx.channel().id());
 
         // 发给server,把client的channel通过attr属性带过去
-        Channel channel = server.getRandomChannel();
+        Channel channel = server.pop();
         channel.attr(Constants.attributeKey).set(ctx.channel());
         channel.writeAndFlush(msg);
+        server.free(channel);
     }
 
     /*
@@ -109,18 +112,18 @@ public class RedisClientHandler extends ChannelDuplexHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         // 这里如果是jedis关闭连接后，会抛异常
-        // System.err.print("exceptionCaught: ");
-        // cause.printStackTrace(System.err);
+         System.err.print("exceptionCaught: ");
+         cause.printStackTrace(System.err);
         ctx.close();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("connection client active: {}", ctx.channel().id());
+        // logger.info("connection client active: {}", ctx.channel().id());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("connention client inactive: {}",ctx.channel().id());
+        // logger.info("connention client inactive: {}",ctx.channel().id());
     }
 }

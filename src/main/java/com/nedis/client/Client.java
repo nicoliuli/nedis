@@ -18,12 +18,12 @@ import java.util.List;
 public class Client {
     private int port;
     private Channel channel;
-    private List<Server> serverList;
+    private Server [] servers;
     private static Logger logger = LoggerFactory.getLogger(Client.class);
 
-    public Client(int port, List<Server> serverList) {
+    public Client(int port, Server [] servers) {
         this.port = port;
-        this.serverList = serverList;
+        this.servers = servers;
     }
 
     public void start() {
@@ -35,7 +35,7 @@ public class Client {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 1024)
-                    .childHandler(new RedisClientInitializer(serverList));
+                    .childHandler(new RedisClientInitializer(servers));
 
             ChannelFuture f = b.bind(port).sync().addListener(new GenericFutureListener<Future<? super Void>>() {
                 @Override

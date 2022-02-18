@@ -1,10 +1,8 @@
 package com.nedis.server;
 
-import com.nedis.config.ConfigUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -13,14 +11,13 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Server {
     private String host;
     private int port;
     private Channel channel;
-    private ArrayList<Channel> serverChannel = new ArrayList<>(ConfigUtil.config.getServerChannel());
+    private ConcurrentLinkedQueue<Channel> serverChannel = new ConcurrentLinkedQueue<>();
     private static Logger logger = LoggerFactory.getLogger(Server.class);
 
 
@@ -61,18 +58,18 @@ public class Server {
         return channel;
     }
 
-    public Channel getRandomChannel() {
-        if (ConfigUtil.config.getServerChannel() == 1) {
-            return serverChannel.get(0);
-        }
-        int idx = new Random().nextInt(ConfigUtil.config.getServerChannel());
-    //    logger.info("server channel idx = {}" ,idx);
-        return serverChannel.get(idx);
+    public Channel pop() {
+        Channel channel = serverChannel.poll();
+        return channel;
     }
 
-    public void closeChannel(){
+    public void free(Channel channel) {
+        serverChannel.add(channel);
+    }
+
+    public void closeChannel() {
         try {
-            if(serverChannel != null && serverChannel.size()>0){
+            if (serverChannel != null && serverChannel.size() > 0) {
                 for (Channel channel : serverChannel) {
                     channel.close().addListener(new GenericFutureListener<Future<? super Void>>() {
                         @Override
@@ -82,12 +79,11 @@ public class Server {
                     });
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
-        }finally {
+        } finally {
 
         }
-
     }
 
 

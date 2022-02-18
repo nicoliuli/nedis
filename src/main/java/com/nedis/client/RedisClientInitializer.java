@@ -10,14 +10,14 @@ public class RedisClientInitializer extends ChannelInitializer<Channel> {
 
 
 
-    private List<Server> serverList;
+    private Server [] servers;
 
-    public RedisClientInitializer(List<Server> serverList) {
-        this.serverList = serverList;
+    public RedisClientInitializer(Server [] servers) {
+        this.servers = servers;
     }
 
     @Override
     protected void initChannel(Channel ch) throws Exception {
-        ch.pipeline().addLast(new RedisClientHandler(serverList));
+        ch.pipeline().addLast(new RedisClientHandler(servers));
     }
 }
