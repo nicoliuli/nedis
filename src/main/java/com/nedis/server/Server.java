@@ -6,6 +6,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
@@ -17,7 +19,7 @@ public class Server {
     private String host;
     private int port;
     private Channel channel;
-    private ConcurrentLinkedQueue<Channel> serverChannel = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<Channel> serverChannelPool = new ConcurrentLinkedQueue<>();
     private static Logger logger = LoggerFactory.getLogger(Server.class);
 
 
@@ -28,6 +30,7 @@ public class Server {
 
     public void start() throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();
+
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
@@ -41,7 +44,7 @@ public class Server {
                 }
             });
             channel = f.channel();
-            serverChannel.add(channel);
+            serverChannelPool.add(channel);
             channel.closeFuture().addListener(new GenericFutureListener<Future<? super Void>>() {
                 @Override
                 public void operationComplete(Future<? super Void> future) throws Exception {
@@ -54,37 +57,16 @@ public class Server {
         }
     }
 
-    public Channel channel() {
-        return channel;
-    }
 
     public Channel pop() {
-        Channel channel = serverChannel.poll();
+        Channel channel = serverChannelPool.poll();
         return channel;
     }
 
     public void free(Channel channel) {
-        serverChannel.add(channel);
+        serverChannelPool.add(channel);
     }
 
-    public void closeChannel() {
-        try {
-            if (serverChannel != null && serverChannel.size() > 0) {
-                for (Channel channel : serverChannel) {
-                    channel.close().addListener(new GenericFutureListener<Future<? super Void>>() {
-                        @Override
-                        public void operationComplete(Future<? super Void> future) throws Exception {
-                            logger.info("channel shutdown");
-                        }
-                    });
-                }
-            }
-        } catch (Exception e) {
-
-        } finally {
-
-        }
-    }
 
 
 }

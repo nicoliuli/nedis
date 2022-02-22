@@ -10,6 +10,8 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.util.CharsetUtil;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +50,10 @@ public class RedisClientHandler extends ChannelDuplexHandler {
         // 解析命令，算出key等信息
         CmdAndKey cmdAndKey = resolveStringCmd(stringCmd);
 
-
         if (cmdAndKey == null || CmdSet.isOtherCmd(cmdAndKey.getCmd())) {
-            // 随机发送
             serverIdx = new Random().nextInt(serverCount);
             server = servers[serverIdx];
         } else if (CmdSet.isNormorCmd(cmdAndKey.getCmd())) {
-            // 根据key的hash值发送
             String key = cmdAndKey.getKey();
             serverIdx = key.hashCode() % serverCount;
             server = servers[serverIdx];
@@ -64,9 +63,6 @@ public class RedisClientHandler extends ChannelDuplexHandler {
             serverIdx = new Random().nextInt(serverCount);
             server = servers[serverIdx];
         }
-        //logger.info("serverIdx = {}",serverIdx);
-
-      //  logger.info("cmdAndKey = {},channelId = {}", cmdAndKey,ctx.channel().id());
 
         // 发给server,把client的channel通过attr属性带过去
         Channel channel = server.pop();
@@ -104,7 +100,6 @@ public class RedisClientHandler extends ChannelDuplexHandler {
             }
             index++;
         }
-
         return null;
     }
 

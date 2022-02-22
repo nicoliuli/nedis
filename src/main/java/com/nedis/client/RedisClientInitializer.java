@@ -3,6 +3,8 @@ package com.nedis.client;
 import com.nedis.server.Server;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.util.List;
 
